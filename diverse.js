@@ -14,7 +14,8 @@ for (var i = 0; i < 365; ++i) {
 // Get HTTP headers
 //=========================================================================
 
-var xhrReq = new XMLHttpXhrRequest();
+// var xhrReq = new XMLHttpXhrRequest();
+var xhrReq = new XMLHttpRequest();
 xhrReq.open('GET', document.location, false);
 xhrReq.send(null);
 var headers = xhrReq.getAllResponseHeaders().toLowerCase();
@@ -641,10 +642,11 @@ for (var i = 0; i < links.length; ++i) {
 // Get all scripts
 //=========================================================================
 
-var elements = document.getElementsByTagName('script');
+// var elements = document.getElementsByTagName('script');
+var elements = document.scripts;
 var element;
 
-var WIDGET_HEIGHT = '200px';
+var WIDGET_HEIGHT = 200;
 
 var widget = document.createElement('div');
 widget.id = 'javascript-list-widget';
@@ -678,6 +680,8 @@ closeButton.style.fontSize = '0.9em';
 closeButton.style.fontFamily = 'Helvetica, sans-serif';
 closeButton.style.cursor = 'pointer';
 closeButton.style.padding = '3px';
+closeButton.style.borderBottom = '1px solid #000000';
+closeButton.style.boxShadow = '0 0 6px 3px rgba(0, 0, 0, 0.5)';
 
 var textBox = document.createElement('textarea');
 widget.appendChild(textBox);
@@ -685,7 +689,21 @@ textBox.id = 'javascript-list-widget-textearea';
 textBox.style.display = 'inline';
 textBox.style.borderWidth = '0';
 textBox.style.width = '100%';
-textBox.style.height = WIDGET_HEIGHT;
+textBox.style.height = WIDGET_HEIGHT + 'px';
+
+var summary = document.createElement('p');
+if (elements.length == 1) {
+  summary.innerHTML = elements.length + ' script'
+} else {
+  summary.innerHTML = elements.length + ' scripts'
+}
+widget.appendChild(summary);
+summary.style.fontFamily = 'Helvetica, sans-serif';
+summary.style.color = '#FDFDFD';
+summary.style.backgroundColor = '#444444';
+summary.style.margin = '0';
+summary.style.width = '100%';
+summary.style.textAlign = 'center';
 
 
 for (var i = 0; i < elements.length; ++i) {
@@ -699,7 +717,7 @@ document.documentElement.insertBefore(widget,
 // Vertical spacer; pushes (most parts of) the site down by the height of
 // the `textBox'
 var topSpacer = document.createElement('div');
-topSpacer.style.height = WIDGET_HEIGHT;
+topSpacer.style.height = WIDGET_HEIGHT + 35 + 'px';
 document.documentElement.insertBefore(topSpacer,
 				      document.documentElement.firstChild);
 
@@ -764,6 +782,73 @@ css.type = 'text/css';
 document.getElementsByTagName('head')[0].appendChild(css);
 css.appendChild(document.createTextNode(rules));
 
+
+//=========================================================================
+// Make a frequency list of tag names
+//=========================================================================
+
+// TODO
+// Example:
+//   - div: 86
+//   - p: 53
+//   - li: 27
+//   - i: 8
+//   - iframe: 1
+//   - nav: 1
+//   - ...
+
+
+//=========================================================================
+// Put focus on `document.documentElement'
+//=========================================================================
+
+document.documentElement.click();
+
+
+//=========================================================================
+// `onscroll' douchbaggery
+//=========================================================================
+
+// Assumes that not elements get added/removed during/in between scrolling
+// events
+var elements =  document.querySelectorAll('*')
+var min = 0;
+var maxString = window.getComputedStyle(
+  document.documentElement).getPropertyValue('height');
+var max = 0 + maxString.substring(0, maxString.length - 2);
+console.log(max);  // DEBUG
+
+
+var overlay = document.createElement('div');
+overlay.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
+overlay.style.color = 'rgba(255, 255, 255, 0.0)';
+overlay.style.top = '0';
+overlay.style.left = '0';
+overlay.style.position = 'absolute';
+overlay.style.width = '100%';
+overlay.style.height = maxString;
+overlay.style.zIndex = '99999999';
+
+document.documentElement.appendChild(overlay);
+
+var _scaleValue = function(value) {
+  return (value - min) * (100 - 0) / (max - min);
+}
+
+window.onscroll = function(e) {
+  for (var i = 0; i < elements.length; ++i) {
+    overlay.style.backgroundColor = 'hsla(170, 5%,' +
+      _scaleValue(document.documentElement.scrollTop) + '%, 0.85)'
+  }
+}
+
+
+//=========================================================================
+// Count number of links on site
+//=========================================================================
+
+var links = document.getElementsByTagName('a');
+console.log(links.length);  // DEBUG
 
 //=========================================================================
 // Acronym finder
@@ -1487,3 +1572,57 @@ for (var i = 0; i < forms.length; ++i) {
     console.log(formField.type + ' - ' + formField.value);  // DEBUG
   }
 }
+
+
+//=========================================================================
+// Add TogetherJS to a website
+//=========================================================================
+
+// XXX:
+//   1. It does not make sense to load TogetherJS for a domain that does
+//      not push TogetherJS to all clients. Collaboration will not be
+//      possible.
+//   2. TogetherJS's JavaScript file is not wrapped in a manner that allows
+//      for it to be dynamically loaded into a `<script>' element.
+
+// Create `<script>' element
+var togetherJSScript = document.createElement('script');
+togetherJSScript.setAttribute('type', 'test/javascript');
+togetherJSScript.setAttribute(
+  'src', 'https://togetherjs.com/together-js-min.js');
+togetherJSScript.text = 'alert("Hello")';
+togetherJSScript.setAttribute('onreadystatechange', function() {
+  if (this.readyState == 'complete') {
+    alert('Ready.');
+    TogetherJS.reinitialize();
+  }
+});
+
+
+// Create `<button>' element
+var togetherJSButton = document.createElement('button');
+togetherJSButton.setAttribute('onclick', 'TogetherJS(this); return false;')
+togetherJSButton.innerHTML = 'Start TogetherJS';
+
+// Append script + button to the document
+document.body.appendChild(togetherJSScript);
+document.documentElement.appendChild(togetherJSButton);
+
+
+//=========================================================================
+// jQuerify
+//=========================================================================
+
+var jQueryScript = document.createElement('script');
+jQueryScript.setAttribute('type', 'text/javascript');
+jQueryScript.setAttribute(
+  'src', '//ajax.googleapis.com/ajax/libs//jquery/1.10.2/jquery.min.js');
+
+document.body.appendChild(jQueryScript);
+
+
+//=========================================================================
+// Chromium-specific: Copy title + URL to clipboard as org-entry
+//=========================================================================
+
+copy('** ' + document.title + '\n' + document.location + '\n');
