@@ -500,28 +500,6 @@ var treeWalker = document.createTreeWalker(document.body, );
 
 
 //=========================================================================
-// Test
-//=========================================================================
-
-var links = document.links;
-
-var win = window.open('');
-
-// var document = win.document;
-
-// Test
-var p = win.document.createElement('p');
-p.innerHTML = 'This is a test.';
-win.document.body.appendChild(p);
-
-// var li;
-// for (var i = 0; i < links.length; ++i) {
-//   li = win.document.body.createElement('li');
-//   li.appendChild(links[i]);
-// }
-
-
-//=========================================================================
 // Hiding test
 //=========================================================================
 
@@ -713,13 +691,13 @@ for (var i = 0; i < elements.length; ++i) {
 
 // document.documentElement.appendChild(widget);
 document.documentElement.insertBefore(widget,
-				      document.documentElement.firstChild);
+                                      document.documentElement.firstChild);
 // Vertical spacer; pushes (most parts of) the site down by the height of
 // the `textBox'
 var topSpacer = document.createElement('div');
 topSpacer.style.height = WIDGET_HEIGHT + 35 + 'px';
 document.documentElement.insertBefore(topSpacer,
-				      document.documentElement.firstChild);
+                                      document.documentElement.firstChild);
 
 
 //=========================================================================
@@ -1185,31 +1163,6 @@ iframe.contentWindow.document.close();
 
 
 //=========================================================================
-// Underscore.js test
-//=========================================================================
-
-
-var x = _.range(100, 200, 12);
-var y = _.range(0, 30, 2);
-
-var o = {
-  red: '#FF0000',
-  green: '#00FF00',
-  blue: '#0000FF',
-  white: '#FFFFFF',
-  black: '#000000',
-};
-
-var p = {
-  one: 1,
-  two: 2,
-  three: 3,
-  four: 4,
-  five: 5,
-  six: 6,
-};
-
-//=========================================================================
 // Insert a draggable element
 //=========================================================================
 
@@ -1269,7 +1222,7 @@ document.documentElement.appendChild(element);
 
 
 //=========================================================================
-// Input
+// Input acrobatics
 //=========================================================================
 
 var inputElement = document.createElement('input');
@@ -1626,3 +1579,140 @@ document.body.appendChild(jQueryScript);
 //=========================================================================
 
 copy('** ' + document.title + '\n' + document.location + '\n');
+
+
+//=========================================================================
+// Open a list of URLs
+//=========================================================================
+
+var urls = [
+  "http://www.wikipedia.org"
+  , "http://www.youtube.com"
+  , "http://www.example.com"
+];
+
+for (var i = 0; i < urls.length; ++i) {
+  window.open(urls[i])
+}
+
+//=========================================================================
+// StackExchange
+//=========================================================================
+
+// Site:
+//   http://stackexchange.com/about/team
+
+// var elements =
+//   document.getElementsByClassName('employee-position');
+var elements =
+  document.getElementsByClassName('employee-location');
+
+var positions = '';
+
+for (var i = 0; i < elements.length; ++i) {
+  positions += elements[i].innerHTML + '\n';
+}
+
+console.log(positions);  // DEBUG
+
+
+//=========================================================================
+// Get a list of all classes (non-unique)
+//=========================================================================
+
+var unique = function(arr, returnFrequencyList) {
+  returnFrequencyList = returnFrequencyList || null;
+
+  var u = {};
+  var a = [];
+  var key = '';
+
+  for (var i = 0; i < arr.length; i++) {
+    key = arr[i];
+    if (!u.hasOwnProperty(key)) {
+      a.push(key);
+      u[key] = 1;
+    } else {
+      u[key] += 1;
+    }
+  }
+
+  if (returnFrequencyList) {
+    return u;
+  } else {
+    return a;
+  }
+}
+
+var elements = document.querySelectorAll('*');
+var classes_non_unique = [];
+
+for (var i = 0; i < elements.length; i++) {
+  classes_non_unique.push(elements[i].getAttribute('class'));
+}
+
+var classes_frequency_list = unique(classes_non_unique, true);
+
+keys = Object.keys(classes_frequency_list);
+
+for (var i = 0; i < keys.length; i++) {
+  key = keys[i];
+  console.log(key + ': ' + classes_frequency_list[key]);  // DEBUG
+}
+
+// TODO: Sort the frequency list `classes_frequency_list' by frequency
+
+
+//=========================================================================
+// Get a list of all objects on the current site
+//=========================================================================
+
+var objects = [];
+var allThings = {};
+
+var walkObjects = function(obj) {
+  var keys = Object.keys(obj);
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var value = obj[key];
+
+    // Objects only
+    if (value && typeof value == 'object') {
+      if (objects.indexOf(value) < 0) {
+        objects.push(value);
+        walkObjects(value);
+      }
+    }
+
+    // All things (obects, strings, integers, etc.)
+    if (allThings[typeof value]) {
+      allThings[typeof value].push(value)
+    } else {
+      allThings[typeof value] = [];
+    }
+  }
+};
+
+walkObjects(this);
+
+// Objects only
+console.log(objects.length);  // DEBUG
+
+// All things (obects, strings, integers, etc.)
+var allThingsKeys = Object.keys(allThings);
+var allThingsNum = 0;
+for (var i = 0; i < allThingsKeys.length; i++) {
+  var key = allThingsKeys[i];
+  var value = allThings[key];
+  console.log(key + ': ' + value.length);  // DEBUG
+  allThingsNum += value.length;
+}
+console.log('Total: ' + allThingsNum);  // DEBUG
+
+// // Strings
+// var allStrings = allThings['string'];
+// var stringKeys = Object.keys(allStrings);
+// for (var i = 0; i < stringKeys.length; i++) {
+//   console.log(allStrings[stringKeys[i]]);  // DEBUG
+// }
